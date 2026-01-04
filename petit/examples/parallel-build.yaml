@@ -1,0 +1,42 @@
+# Example parallel build job
+#
+# This demonstrates parallel task execution in Petit.
+# Tasks without dependencies run concurrently.
+
+name: parallel-build
+description: Build project with parallel compilation
+
+metadata:
+  owner: ci-team
+  priority: normal
+
+tasks:
+  # These tasks run in parallel (no dependencies)
+  - id: build-frontend
+    command: echo "Building frontend..." && sleep 1
+    timeout: 300s
+
+  - id: build-backend
+    command: echo "Building backend..." && sleep 1
+    timeout: 300s
+
+  - id: build-mobile
+    command: echo "Building mobile app..." && sleep 1
+    timeout: 300s
+
+  # This runs after all builds complete
+  - id: run-tests
+    command: echo "Running integration tests..."
+    depends_on:
+      - build-frontend
+      - build-backend
+      - build-mobile
+    timeout: 600s
+    retries: 2
+
+  # Final packaging
+  - id: package
+    command: echo "Creating release package..."
+    depends_on:
+      - run-tests
+    timeout: 120s

@@ -1,0 +1,42 @@
+# Example data pipeline job for Petit orchestrator
+#
+# Submit with: petit job submit examples/data-pipeline.yaml
+
+name: data-pipeline
+description: Daily data processing pipeline
+
+metadata:
+  owner: data-team
+  priority: high
+
+tasks:
+  - id: extract
+    command: echo "Extracting data from source..."
+    timeout: 300s
+    retries: 3
+
+  - id: validate
+    command: echo "Validating extracted data..."
+    depends_on:
+      - extract
+    timeout: 60s
+
+  - id: transform
+    command: echo "Transforming data..."
+    depends_on:
+      - validate
+    timeout: 600s
+    retries: 2
+
+  - id: load
+    command: echo "Loading data to destination..."
+    depends_on:
+      - transform
+    timeout: 300s
+    retries: 3
+
+  - id: notify-success
+    command: echo "Pipeline completed successfully!"
+    depends_on:
+      - load
+    on_failure: continue
